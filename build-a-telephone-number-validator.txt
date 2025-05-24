@@ -1,0 +1,119 @@
+** start of index.html **
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telephone Number Validator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>US Telephone Number Validator</h1>
+    <input type="text" id="user-input" placeholder="Enter phone number here">
+    <div class="buttons">
+      <button id="check-btn">Check</button>
+      <button id="clear-btn">Clear</button>
+    </div>
+    <div id="results-div"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+** end of index.html **
+
+** start of styles.css **
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.container {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.buttons button {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#check-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+#clear-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+#results-div {
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+
+** end of styles.css **
+
+** start of script.js **
+
+const userInput = document.getElementById("user-input");
+const checkBtn = document.getElementById("check-btn");
+const clearBtn = document.getElementById("clear-btn");
+const resultsDiv = document.getElementById("results-div");
+
+const telephoneCheck = (str) => {
+  const regex = /^(1\s?)?(\(\d{3}\)|\d{3})([\s\-])?\d{3}([\s\-])?\d{4}$/;
+  return regex.test(str);
+};
+
+checkBtn.addEventListener("click", () => {
+  const inputVal = userInput.value;
+  if (!inputVal) {
+    alert("Please provide a phone number");
+    return;
+  }
+  if (telephoneCheck(inputVal)) {
+    resultsDiv.textContent = `Valid US number: ${inputVal}`;
+    resultsDiv.style.color = "green";
+  } else {
+    resultsDiv.textContent = `Invalid US number: ${inputVal}`;
+    resultsDiv.style.color = "red";
+  }
+});
+
+clearBtn.addEventListener("click", () => {
+  userInput.value = "";
+  resultsDiv.textContent = "";
+});
+
+** end of script.js **
+

@@ -1,0 +1,180 @@
+** start of index.html **
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cash Register</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Cash Register</h1>
+    <label for="cash">Customer Cash:</label>
+    <input type="number" id="cash" />
+    <button id="purchase-btn">Purchase</button>
+    <p id="change-due"></p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+** end of index.html **
+
+** start of styles.css **
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f3f3f3;
+  margin: 0;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 300px;
+}
+
+input, button {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  width: 100%;
+  font-size: 1rem;
+}
+
+#change-due {
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+
+** end of styles.css **
+
+** start of script.js **
+
+// Variables globales
+let price = 19.5;
+let cid = [
+  ["PENNY", 0.5],
+  ["NICKEL", 0],
+  ["DIME", 0],
+  ["QUARTER", 0],
+  ["ONE", 0],
+  ["FIVE", 0],
+  ["TEN", 0],
+  ["TWENTY", 0],
+  ["ONE HUNDRED", 0]
+];
+
+// Elementos del DOM
+const cashInput = document.getElementById("cash");
+const changeDueEl = document.getElementById("change-due");
+const purchaseBtn = document.getElementById("purchase-btn");
+
+// Valores de las monedas y billetes en dólares
+const DENOMINATIONS = [
+  ["ONE HUNDRED", 100],
+  ["TWENTY", 20],
+  ["TEN", 10],
+  ["FIVE", 5],
+  ["ONE", 1],
+  ["QUARTER", 0.25],
+  ["DIME", 0.1],
+  ["NICKEL", 0.05],
+  ["PENNY", 0.01]
+];
+
+// Función para manejar la compra y calcular el cambio
+function handlePurchase() {
+  let cash = parseFloat(cashInput.value);
+  if (isNaN(cash)) {
+    alert("Please enter a valid cash amount");
+    return;
+  }
+
+  if (cash < price) {
+    alert("Customer does not have enough money to purchase the item");
+    changeDueEl.textContent = "";
+    return;
+  }
+
+  if (cash === price) {
+    changeDueEl.textContent = "No change due - customer paid with exact cash";
+    return;
+  }
+
+  let changeDue = parseFloat((cash - price).toFixed(2));
+
+  // Sumar el total en caja
+  let totalCid = cid.reduce((sum, curr) => sum + curr[1], 0).toFixed(2);
+  totalCid = parseFloat(totalCid);
+
+  // Caso cuando cambio exacto es igual al total de caja (Status: CLOSED)
+  if (changeDue === totalCid) {
+    let output = "Status: CLOSED " + cid
+      .filter(c => c[1] > 0)
+      .map(c => `${c[0]}: $${c[1].toFixed(2)}`)
+      .join(" ");
+    changeDueEl.textContent = output;
+    return;
+  }
+
+  // Si el total en caja es menor al cambio requerido
+  if (totalCid < changeDue) {
+    changeDueEl.textContent = "Status: INSUFFICIENT_FUNDS";
+    return;
+  }
+
+  // Calcular cambio que se puede devolver
+  let changeArray = [];
+  let remainingChange = changeDue;
+
+  // Recorrer las denominaciones de mayor a menor
+  for (let [name, value] of DENOMINATIONS) {
+    let amountInDrawer = cid.find(c => c[0] === name)[1];
+    let amountToReturn = 0;
+
+    while (remainingChange >= value && amountInDrawer > 0) {
+      remainingChange = parseFloat((remainingChange - value).toFixed(2));
+      amountInDrawer = parseFloat((amountInDrawer - value).toFixed(2));
+      amountToReturn = parseFloat((amountToReturn + value).toFixed(2));
+    }
+
+    if (amountToReturn > 0) {
+      changeArray.push([name, amountToReturn]);
+    }
+  }
+
+  // Sumar el total de cambio devuelto
+  let returnedTotal = changeArray.reduce((sum, curr) => sum + curr[1], 0).toFixed(2);
+  returnedTotal = parseFloat(returnedTotal);
+
+  // Si no se puede devolver el cambio exacto
+  if (returnedTotal < changeDue) {
+    changeDueEl.textContent = "Status: INSUFFICIENT_FUNDS";
+    return;
+  }
+
+  // Caso cuando hay suficiente dinero y se puede devolver el cambio
+  let output = "Status: OPEN " + changeArray
+    .map(c => `${c[0]}: $${c[1].toFixed(2)}`)
+    .join(" ");
+
+  changeDueEl.textContent = output;
+}
+
+// Listener para el botón
+purchaseBtn.addEventListener("click", handlePurchase);
+
+
+** end of script.js **
+
